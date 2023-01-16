@@ -5,7 +5,7 @@ from pathlib import Path
 import os
 import sys
 
-root = os.environ["PYTORCH_LIGHTNING_FORK_ROOT"]
+root = os.environ["HABANA_LIGHTNING_PLUGINS_ROOT"]
 REQUIREMENTS = [
     'pytorch-lightning',
     'torch',
@@ -29,7 +29,7 @@ def get_version():
             import re
             describe = (
                 subprocess.check_output(
-                    ["git", "-C", root, "describe", "--abbrev=7", "--tags", "--dirty"])
+                    ["git", "-C", root, "describe", "--abbrev=7", "--tags", "--dirty", "--always"])
                 .decode("ascii").strip())
             sha = re.search(r"g([a-z0-9\-]+)", describe).group(1)
             return HABANA_DEFAULT_VERSION + "+" + sha
@@ -42,8 +42,8 @@ setup(name='habana-lightning-plugins',
       description="Habana's lightning-specific optimized plugins",
       url="https://habana.ai/",
       download_url="TODO",
-      license="See LICENSE.txt",
-      license_files=("LICENSE.txt",),
+      license="See LICENSE file",
+      license_files=("LICENSE",),
       author="Habana Labs Ltd., an Intel Company",
       author_email="support@habana.ai",
       install_requires=REQUIREMENTS,
