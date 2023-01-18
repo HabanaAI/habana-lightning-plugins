@@ -14,6 +14,24 @@ REQUIREMENTS = [
     'habana-torch-plugin',
 ]
 
+CLASSIFIERS = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: Other/Proprietary License',
+    'Operating System :: Unix',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3 :: Only',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Scientific/Engineering :: Mathematics',
+    'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    'Topic :: Software Development',
+    'Topic :: Software Development :: Libraries',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
 def get_version():
     HABANA_DEFAULT_VERSION = "0.0.0.0"
     version = os.getenv('RELEASE_VERSION')
@@ -49,4 +67,5 @@ setup(name='habana-lightning-plugins',
       install_requires=REQUIREMENTS,
       zip_safe=False,
       packages=["habana_lightning_plugins"],
+      classifiers=CLASSIFIERS
       )
