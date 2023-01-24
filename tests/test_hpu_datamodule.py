@@ -7,7 +7,7 @@ import torch
 from pytorch_lightning import LightningDataModule, Trainer
 from pytorch_lightning.demos.boring_classes import BoringModel
 from pytorch_lightning.utilities.imports import _TORCHVISION_AVAILABLE
-from tests_pytorch.helpers.runif import RunIf
+from helpers.runif import RunIf
 from habana_lightning_plugins.datamodule import HPUDataModule
 
 if _TORCHVISION_AVAILABLE:

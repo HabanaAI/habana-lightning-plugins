@@ -20,8 +20,6 @@ import torch
 from packaging.version import Version
 from pkg_resources import get_distribution
 
-from lightning_lite.accelerators.cuda import num_cuda_devices
-from lightning_lite.strategies.fairscale import _FAIRSCALE_AVAILABLE
 from pytorch_lightning.accelerators.mps import MPSAccelerator
 from pytorch_lightning.accelerators.tpu import TPUAccelerator
 from pytorch_lightning.callbacks.progress.rich_progress import _RICH_AVAILABLE
@@ -29,30 +27,15 @@ from pytorch_lightning.strategies.bagua import _BAGUA_AVAILABLE
 from pytorch_lightning.strategies.colossalai import _COLOSSALAI_AVAILABLE
 from pytorch_lightning.strategies.deepspeed import _DEEPSPEED_AVAILABLE
 from pytorch_lightning.utilities.imports import (
-    _APEX_AVAILABLE,
     _HIVEMIND_AVAILABLE,
-    _HOROVOD_AVAILABLE,
     _HPU_AVAILABLE,
     _IPU_AVAILABLE,
     _OMEGACONF_AVAILABLE,
     _PSUTIL_AVAILABLE,
-    _TORCH_GREATER_EQUAL_1_10,
     _TORCH_QUANTIZE_AVAILABLE,
 )
 
 _HOROVOD_NCCL_AVAILABLE = False
-if _HOROVOD_AVAILABLE:
-    import horovod
-
-    try:
-
-        # `nccl_built` returns an integer
-        _HOROVOD_NCCL_AVAILABLE = bool(horovod.torch.nccl_built())
-    except AttributeError:
-        # AttributeError can be raised if MPI is not available:
-        # https://github.com/horovod/horovod/blob/v0.23.0/horovod/torch/__init__.py#L33-L34
-        pass
-
 
 class RunIf:
     """RunIf wrapper for simple marking specific cases, fully compatible with pytest.mark::
@@ -126,12 +109,6 @@ class RunIf:
         conditions = []
         reasons = []
 
-        if min_cuda_gpus:
-            conditions.append(num_cuda_devices() < min_cuda_gpus)
-            reasons.append(f"GPUs>={min_cuda_gpus}")
-            # used in conftest.py::pytest_collection_modifyitems
-            kwargs["min_cuda_gpus"] = True
-
         if min_torch:
             torch_version = get_distribution("torch").version
             conditions.append(Version(torch_version) < Version(min_torch))
@@ -151,25 +128,6 @@ class RunIf:
             _miss_default = "fbgemm" not in torch.backends.quantized.supported_engines
             conditions.append(not _TORCH_QUANTIZE_AVAILABLE or _miss_default)
             reasons.append("PyTorch quantization")
-
-        if amp_apex:
-            conditions.append(not _APEX_AVAILABLE)
-            reasons.append("NVIDIA Apex")
-            kwargs["amp_apex"] = amp_apex
-
-        if bf16_cuda:
-            try:
-                cond = not (torch.cuda.is_available() and _TORCH_GREATER_EQUAL_1_10 and torch.cuda.is_bf16_supported())
-            except (AssertionError, RuntimeError) as e:
-                # AssertionError: Torch not compiled with CUDA enabled
-                # RuntimeError: Found no NVIDIA driver on your system.
-                is_unrelated = "Found no NVIDIA driver" not in str(e) or "Torch not compiled with CUDA" not in str(e)
-                if is_unrelated:
-                    raise e
-                cond = True
-
-            conditions.append(cond)
-            reasons.append("CUDA device bf16")
 
         if skip_windows:
             conditions.append(sys.platform == "win32")
@@ -199,10 +157,6 @@ class RunIf:
                 conditions.append(MPSAccelerator.is_available())
                 reasons.append("not MPS")
 
-        if horovod:
-            conditions.append(not _HOROVOD_AVAILABLE)
-            reasons.append("Horovod")
-
         if horovod_nccl:
             conditions.append(not _HOROVOD_NCCL_AVAILABLE)
             reasons.append("Horovod with NCCL")
@@ -213,14 +167,6 @@ class RunIf:
             reasons.append("Standalone execution")
             # used in conftest.py::pytest_collection_modifyitems
             kwargs["standalone"] = True
-
-        if fairscale:
-            if skip_windows:
-                raise ValueError(
-                    "`skip_windows` is not necessary when `fairscale` is set as it does not support Windows."
-                )
-            conditions.append(not _FAIRSCALE_AVAILABLE)
-            reasons.append("Fairscale")
 
         if deepspeed:
             conditions.append(not _DEEPSPEED_AVAILABLE)
