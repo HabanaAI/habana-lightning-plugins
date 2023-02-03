@@ -22,17 +22,8 @@ import torch
 
 from pytorch_lightning.profilers.pytorch import PyTorchProfiler
 from pytorch_lightning.trainer.connectors.data_connector import warning_cache
-from pytorch_lightning.trainer import setup
 from pytorch_lightning.utilities.imports import _KINETO_AVAILABLE
 from pytorch_lightning.utilities.rank_zero import rank_zero_warn
-from pytorch_lightning.utilities.exceptions import MisconfigurationException
-from pytorch_lightning.profilers import (
-    AdvancedProfiler,
-    PassThroughProfiler,
-    Profiler,
-    PyTorchProfiler,
-    SimpleProfiler,
-)
 
 if _KINETO_AVAILABLE:
     from torch.profiler import profile, ProfilerActivity, tensorboard_trace_handler
@@ -102,7 +93,6 @@ class HPUProfiler(PyTorchProfiler):
 
         self.profiler: Optional[_PROFILER] = None
         self._profiler_kwargs["activities"] = self.profile_hpu_activities(self._profiler_kwargs.get("activities", None))
-        setup._init_profiler = _init_profiler_hpu
 
     def profile_hpu_activities(self, activities) -> List["ProfilerActivity"]:  # type: ignore
         if not _KINETO_AVAILABLE:
@@ -159,23 +149,3 @@ class HPUProfiler(PyTorchProfiler):
 
     def summary(self) -> str:
         return "Summary not supported for HPU Profiler"
-
-
-def _init_profiler_hpu(trainer: "pl.Trainer", profiler: Optional[Union[Profiler, str]]) -> None:
-    if isinstance(profiler, str):
-        PROFILERS = {
-            "simple": SimpleProfiler,
-            "advanced": AdvancedProfiler,
-            "pytorch": PyTorchProfiler,
-        }
-        if _KINETO_AVAILABLE:
-            PROFILERS.update({"hpu": HPUProfiler})
-        profiler = profiler.lower()
-        if profiler not in PROFILERS:
-            raise MisconfigurationException(
-                "When passing string value for the `profiler` parameter of `Trainer`,"
-                f" it can only be one of {list(PROFILERS.keys())}"
-            )
-        profiler_class = PROFILERS[profiler]
-        profiler = profiler_class()
-    trainer.profiler = profiler or PassThroughProfiler()

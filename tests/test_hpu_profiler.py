@@ -23,10 +23,12 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.accelerators import HPUAccelerator
 from pytorch_lightning.demos.boring_classes import BoringModel
 from pytorch_lightning.profilers import AdvancedProfiler, SimpleProfiler
+from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from helpers.runif import RunIf
 from pytorch_lightning.utilities.imports import _KINETO_AVAILABLE
 if _KINETO_AVAILABLE:
     from habana_lightning_plugins.profiler import HPUProfiler
+
 
 @pytest.fixture
 def get_device_count(pytestconfig):
@@ -34,7 +36,8 @@ def get_device_count(pytestconfig):
     if not hpus:
         assert HPUAccelerator.auto_device_count() >= 1
         return 1
-    assert hpus <= HPUAccelerator.auto_device_count(), "More hpu devices asked than present"
+    assert hpus <= HPUAccelerator.auto_device_count(
+    ), "More hpu devices asked than present"
     assert hpus == 1 or hpus % 8 == 0
     return hpus
 
@@ -58,7 +61,8 @@ def test_hpu_simple_profiler_instances(get_device_count):
 @RunIf(hpu=True)
 def test_hpu_simple_profiler_trainer_stages(tmpdir, get_device_count):
     model = BoringModel()
-    profiler = SimpleProfiler(dirpath=os.path.join(tmpdir, "profiler_logs"), filename="profiler")
+    profiler = SimpleProfiler(dirpath=os.path.join(
+        tmpdir, "profiler_logs"), filename="profiler")
     trainer = Trainer(
         profiler=profiler,
         accelerator="hpu",
@@ -73,7 +77,8 @@ def test_hpu_simple_profiler_trainer_stages(tmpdir, get_device_count):
     trainer.predict(model)
 
     actual = set(os.listdir(profiler.dirpath))
-    expected = {f"{stage}-profiler.txt" for stage in ("fit", "validate", "test", "predict")}
+    expected = {
+        f"{stage}-profiler.txt" for stage in ("fit", "validate", "test", "predict")}
     assert actual == expected
     for file in list(os.listdir(profiler.dirpath)):
         assert os.path.getsize(os.path.join(profiler.dirpath, file)) > 0
@@ -92,7 +97,8 @@ def test_hpu_advanced_profiler_instances(get_device_count):
 @RunIf(hpu=True)
 def test_hpu_advanced_profiler_trainer_stages(tmpdir, get_device_count):
     model = BoringModel()
-    profiler = AdvancedProfiler(dirpath=os.path.join(tmpdir, "profiler_logs"), filename="profiler")
+    profiler = AdvancedProfiler(dirpath=os.path.join(
+        tmpdir, "profiler_logs"), filename="profiler")
     trainer = Trainer(
         profiler=profiler,
         accelerator="hpu",
@@ -107,7 +113,8 @@ def test_hpu_advanced_profiler_trainer_stages(tmpdir, get_device_count):
     trainer.predict(model)
 
     actual = set(os.listdir(profiler.dirpath))
-    expected = {f"{stage}-profiler.txt" for stage in ("fit", "validate", "test", "predict")}
+    expected = {
+        f"{stage}-profiler.txt" for stage in ("fit", "validate", "test", "predict")}
     assert actual == expected
     for file in list(os.listdir(profiler.dirpath)):
         assert os.path.getsize(os.path.join(profiler.dirpath, file)) > 0
@@ -203,10 +210,11 @@ def test_advanced_profiler_distributed_files(tmpdir, get_device_count):
 
 
 @RunIf(hpu=True)
-def test_hpu_pytorch_profiler_instances():
-
-    trainer = Trainer(profiler="hpu", accelerator="hpu", devices=1)
-    assert isinstance(trainer.profiler, HPUProfiler)
+def test_hpu_profiler_no_string_instances():
+    with pytest.raises(MisconfigurationException) as e_info:
+        trainer = Trainer(profiler="hpu", accelerator="hpu", devices=1)
+    assert "it can only be one of ['simple', 'advanced', 'pytorch', 'xla']" in str(
+        e_info)
 
 
 @RunIf(hpu=True)
