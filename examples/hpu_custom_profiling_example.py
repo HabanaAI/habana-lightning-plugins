@@ -1,4 +1,4 @@
-# Copyright The PyTorch Lightning team.
+# Copyright (c) 2023 Habana Labs, Ltd. an Intel Company
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ from torchvision.datasets import MNIST
 from pytorch_lightning.utilities.imports import _KINETO_AVAILABLE
 
 if _KINETO_AVAILABLE:
-    from pytorch_lightning.profilers.hpu import HPUProfiler
+    from habana_lightning_plugins.profiler import HPUProfiler
 else:
     from pytorch_lightning.profiler.pytorch import PyTorchProfiler
 

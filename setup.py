@@ -1,11 +1,13 @@
-# Copyright (c) 2021, Habana Labs Ltd.  All rights reserved.
+# Copyright (c) 2023, Habana Labs Ltd.  All rights reserved.
 
 from setuptools import setup, Extension
 from pathlib import Path
 import os
 import sys
 
-root = os.environ["HABANA_LIGHTNING_PLUGINS_ROOT"]
+root = os.environ.get("HABANA_LIGHTNING_PLUGINS_ROOT", '.')
+long_description = Path(os.path.join(root, "README.md")).read_text()
+
 REQUIREMENTS = [
     'pytorch-lightning',
     'torch',
@@ -32,6 +34,7 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 
+
 def get_version():
     HABANA_DEFAULT_VERSION = "0.0.0.0"
     version = os.getenv('RELEASE_VERSION')
@@ -55,6 +58,7 @@ def get_version():
             print("Error getting version: {}".format(e), file=sys.stderr)
             return f"{HABANA_DEFAULT_VERSION}+unknown"
 
+
 setup(name='habana-lightning-plugins',
       version=get_version(),
       description="Habana's lightning-specific optimized plugins",
@@ -67,5 +71,7 @@ setup(name='habana-lightning-plugins',
       install_requires=REQUIREMENTS,
       zip_safe=False,
       packages=["habana_lightning_plugins"],
-      classifiers=CLASSIFIERS
+      classifiers=CLASSIFIERS,
+      long_description=long_description,
+      long_description_content_type='text/markdown'
       )

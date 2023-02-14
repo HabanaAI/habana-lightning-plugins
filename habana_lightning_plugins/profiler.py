@@ -1,4 +1,4 @@
-# Copyright The PyTorch Lightning team.
+# Copyright (c) 2023 Habana Labs, Ltd. an Intel Company
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -92,9 +92,11 @@ class HPUProfiler(PyTorchProfiler):
         )
 
         self.profiler: Optional[_PROFILER] = None
-        self._profiler_kwargs["activities"] = self.profile_hpu_activities(self._profiler_kwargs.get("activities", None))
+        self._profiler_kwargs["activities"] = self.profile_hpu_activities(
+            self._profiler_kwargs.get("activities", None))
 
-    def profile_hpu_activities(self, activities) -> List["ProfilerActivity"]:  # type: ignore
+    # type: ignore
+    def profile_hpu_activities(self, activities) -> List["ProfilerActivity"]:
         if not _KINETO_AVAILABLE:
             return activities
         activities.append(ProfilerActivity.HPU)
@@ -127,17 +129,20 @@ class HPUProfiler(PyTorchProfiler):
                     if self._export_to_chrome:
                         file_name = re.sub(r"[^a-zA-Z0-9]+", "_", action_name)
                         handler = tensorboard_trace_handler(
-                            str(self.dirpath), self._prepare_filename(action_name=file_name, extension="")
+                            str(self.dirpath), self._prepare_filename(
+                                action_name=file_name, extension="")
                         )
                         handler(profiler)
 
                     if self._export_to_flame_graph:
                         path = os.path.join(
-                            self.dirpath, self._prepare_filename(action_name=action_name, extension=".stack")
+                            self.dirpath, self._prepare_filename(
+                                action_name=action_name, extension=".stack")
                         )
                         profiler.export_stacks(path, metric=self._metric)
                 else:
-                    rank_zero_warn("The HPUProfiler failed to export trace as `dirpath` is None")
+                    rank_zero_warn(
+                        "The HPUProfiler failed to export trace as `dirpath` is None")
 
             if not self._has_on_trace_ready:
                 self.profiler.on_trace_ready = on_trace_ready
