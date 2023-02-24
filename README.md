@@ -1,17 +1,41 @@
-----
-Using HPUDataModule
------------------------
 
-``HPUDataModule`` class is a wrapper around the ``LightningDataModule`` class. It makes working with custom models easier on HPU devices.
-It uses HabanaDataloader for training, testing, and validation of user-provided models. Currently, it only supports the ``Imagenet`` dataset.
+<h1 style="text-align: center;">Habana Lightning Plugins</h1>
 
+Habana Lightning plugins is a suite of plugins that aid/accelerates model training using Lightning framework for HPU.
+The plugins acts as an extension to the lightning framework to support HPU specific features.
+
+Currently the following plugins are available from the suite.
+
+* HPUDataModule
+* HPUProfiler
+
+# Installation
+
+To install Habana lightning plugins run the following command.
+```bash
+python -um pip install habana-lightning-plugins
+```
+
+# HPUDataModule
+
+``HPUDataModule`` is an extension to the ``LightningDataModule`` class which uses Habana's dataloader to load and pre-process the input data.
+Using HPUDataModule offloads the data preprocessing overhead to the HPU and in turn increases the performance of training. The wrapper also
+aids to switch between hardware and software preprocessor based on the specific Gaudi family used.
+
+Visit [Habana Dataloder](https://docs.habana.ai/en/latest/PyTorch/Habana_Media_Loader_PT/Media_Loader_PT.html) for more information related to Habana Dataloder.
+
+## Usage
 Here's an example of how to use the ``HPUDataModule``:
 
-.. code-block:: python
+ 1. Import Habana Datamodule
 
-    import pytorch_lightning as pl
-    from habana_datamodule.hpu_datamodule import HPUDataModule
+```python
+    from habana_lightning_plugins.datamodule import HPUDataModule
+```
 
+ 2. Create and initialize HPUDataModule object with the dataset and the configuration required to preprocess the data.
+
+```python
     train_dir = "./path/to/train/data"
     val_dir = "./path/to/val/data"
 
@@ -41,18 +65,30 @@ Here's an example of how to use the ``HPUDataModule``:
         pin_memory=True,
         drop_last=True,
     )
+```
 
-    # Initialize a trainer
+ 3. Create an object of Lightning trainer and model.
+```python
     trainer = pl.Trainer(devices=1, accelerator="hpu", max_epochs=1, max_steps=2)
-
-    # Init our model
     model = RN50Module()  # Or any other model to be defined by user
+```
 
+4. Pass the datamodule object as an argument to trainer to execute train/val/test loops.
+```python
     trainer.fit(model, datamodule=data_module)
     trainer.validate(model, datamodule=data_module)
+```
+## Examples
+ - A sample script can be found at ``examples/hpu_datamodule_sample.py``.
+ ```python
+ python examples/hpu_datamodule_sample.py --data-path <path to Imagenet dataset - ILSVRC2012>
+```
+ - A reference model using HPUDataModule can be found at [Resnet50 Model reference](https://github.com/HabanaAI/Model-References/tree/1.8.0/PyTorch/computer_vision/classification)
 
-A working example can be found at ``examples/hpu_datamodule_sample.py``.
-For more details refer to `Habana dataloader <https://docs.habana.ai/en/latest/PyTorch_User_Guide/PyTorch_User_Guide.html#habana-data-loader>`__.
+
+## Limitations
+ - HPUDataModule supports the ``Imagenet`` dataset only.
+ - HPUDataModule supports only 8 parallel data loader workers
 
 
 # HPUProfiler
@@ -60,15 +96,7 @@ For more details refer to `Habana dataloader <https://docs.habana.ai/en/latest/P
 HPUProfiler is an lightning implementation of pytorch profiler for HPU devices. It aids to get the profiling summary of PyTorch functions. 
 It subclasses PyTorch Lightning's [PyTorch profiler](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.profilers.PyTorchProfiler.html#pytorch_lightning.profilers.PyTorchProfiler).
 
-## Installation
 
-It comes as part of Habana-Lightning-Plugins package. 
-
-Use [pip](https://pip.pypa.io/en/stable/) to install the plugins package.
-
-```bash
-python -um pip install Habana-Lightning-Plugins
-```
 
 ## Usage
 

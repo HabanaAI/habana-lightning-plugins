@@ -171,6 +171,7 @@ class HPUDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):  # type: ignore[no-untyped-def]
         """test set uses the test split."""
+        sampler_eval = torch.utils.data.distributed.DistributedSampler(self.dataset_val) if self.distributed  else torch.utils.data.SequentialSampler(self.dataset_val)
         loader = self.data_loader_type(
             dataset=self.dataset_val,
             batch_size=self.batch_size,
