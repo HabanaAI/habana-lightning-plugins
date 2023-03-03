@@ -15,7 +15,7 @@
 from typing import Any, Optional
 
 import pytorch_lightning as pl
-from pytorch_lightning.utilities import _HPU_AVAILABLE
+from pytorch_lightning.accelerators.hpu import _HPU_AVAILABLE
 from pytorch_lightning.utilities.imports import _TORCHVISION_AVAILABLE
 import torch
 

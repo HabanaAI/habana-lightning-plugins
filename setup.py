@@ -9,8 +9,8 @@ root = os.environ.get("HABANA_LIGHTNING_PLUGINS_ROOT", '.')
 long_description = Path(os.path.join(root, "README.md")).read_text()
 
 REQUIREMENTS = [
-    'pytorch-lightning',
-    'torch',
+    'pytorch-lightning==1.9.4',
+    'torch==1.13.1',
     'torchvision',
     'habana-torch-dataloader',
     'habana-torch-plugin',
