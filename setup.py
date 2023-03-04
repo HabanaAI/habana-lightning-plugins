@@ -10,7 +10,7 @@ long_description = Path(os.path.join(root, "README.md")).read_text()
 
 REQUIREMENTS = [
     'pytorch-lightning==1.9.4',
-    'torch==1.13.1',
+    'torch<2.0.0',
     'torchvision',
     'habana-torch-dataloader',
     'habana-torch-plugin',
