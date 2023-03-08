@@ -29,6 +29,8 @@ if _HPU_AVAILABLE:
     except ImportError:
         raise ModuleNotFoundError("habana_dataloader package is not installed.")
 
+import habana_lightning_plugins.utils
+from habana_lightning_plugins.dataloaders.resnet_media_pipe import MediaApiDataLoader
 _DATASETS_PATH = "./data"
 
 
@@ -117,7 +119,10 @@ class HPUDataModule(pl.LightningDataModule):
         if self.dl_type == "MP":
             self.data_loader_type = torch.utils.data.DataLoader
         else:
-            self.data_loader_type = habana_dataloader.HabanaDataLoader
+            if habana_lightning_plugins.utils.is_gaudi2():
+                self.data_loader_type = MediaApiDataLoader
+            else:
+                self.data_loader_type = habana_dataloader.HabanaDataLoader
 
     def setup(self, stage: Optional[str] = None):  # type: ignore[no-untyped-def]
 

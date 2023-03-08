@@ -1,6 +1,18 @@
-# Copyright (c) 2023, Habana Labs Ltd.  All rights reserved.
+# Copyright (c) 2023 Habana Labs, Ltd. an Intel Company
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_namespace_packages
 from pathlib import Path
 import os
 import sys
@@ -69,7 +81,9 @@ setup(name='habana-lightning-plugins',
       author_email="support@habana.ai",
       install_requires=REQUIREMENTS,
       zip_safe=False,
-      packages=["habana_lightning_plugins"],
+      packages=find_namespace_packages(include=[
+        "habana_lightning_plugins",
+        "habana_lightning_plugins.dataloaders"]),
       classifiers=CLASSIFIERS,
       long_description=long_description,
       long_description_content_type='text/markdown'

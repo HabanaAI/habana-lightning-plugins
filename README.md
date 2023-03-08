@@ -84,6 +84,7 @@ Here's an example of how to use the ``HPUDataModule``:
  python examples/hpu_datamodule_sample.py --data-path <path to Imagenet dataset - ILSVRC2012>
 ```
  - A reference model using HPUDataModule can be found at [Resnet50 Model reference](https://github.com/HabanaAI/Model-References/tree/1.8.0/PyTorch/computer_vision/classification)
+ - For more details related to Habana dataloaders, ref: https://docs.habana.ai/en/latest/PyTorch/Habana_Media_Loader_PT/Media_Loader_PT.html
 
 
 ## Limitations
