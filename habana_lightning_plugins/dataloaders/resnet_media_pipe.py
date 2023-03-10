@@ -214,6 +214,9 @@ class MediaApiDataLoader(torch.utils.data.DataLoader):
         root = self.dataset.root
         if "train" in root:
             is_training=True
+            self.shuffle=True
+        else:
+            self.shuffle=False
 
         device_string = utils.get_device_string()
         num_instances = utils.get_world_size()
